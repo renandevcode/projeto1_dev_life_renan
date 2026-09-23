@@ -4,6 +4,7 @@ from constantes import *  # Você pode usar as constantes definidas em constante
 import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.py para desenhar na tela
                                # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
 
+from inicializacao import gera_posicao_desocupada
 
 def desenha_tela(janela, estado, altura_tela, largura_tela):
     # Utilize o dicionário estado para saber onde o jogador e os outros objetos estão.
@@ -13,7 +14,9 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     
     # O seu código deve desenhar a tela do jogo aqui a partir dos valores no dicionário "estado"
     # APAGUE ESTA LINHA E A LINHA ABAIXO E ESCREVA SEU CÓDIGO AQUI
-    motor.desenha_string(janela, 0, altura_tela // 2, 'APAGUE ESTA LINHA', PRETO, BRANCO)
+    for y in range(len(estado['mapa'])):
+        for x in range(len(estado['mapa'][0])):
+            motor.desenha_string(janela,x,y,' ',VERDE_CLARO,VERDE_ESCURO)
 
     motor.mostra_janela(janela)
 
