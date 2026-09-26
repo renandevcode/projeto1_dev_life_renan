@@ -5,7 +5,7 @@ import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.p
                                # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
 
 from inicializacao import gera_posicao_desocupada,gera_objetos
-
+from random import random
 def desenha_tela(janela, estado, altura_tela, largura_tela):
     # Utilize o dicionário estado para saber onde o jogador e os outros objetos estão.
     # Por exemplo, para saber a posição do jogador, use estado['pos_jogador']
@@ -54,11 +54,6 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
 
 def atualiza_estado(estado, tecla):
-    # O dicionário "estado" é atualizado com base na tecla apertada pelo jogador
-
-    # Mude o valor da chave 'tela_atual' para mudar de tela
-    
-    # Começamos apagando a mensagem anterior, pois ela já foi mostrada no frame anterior
     estado['mensagem'] = ''
 
     # Retém a posição jogador para atualizar ao fim do ciclo
@@ -88,13 +83,42 @@ def atualiza_estado(estado, tecla):
     else : 
         return
 
+    # Indica colisão com a parede 
     for objeto  in estado['objetos']:
         if objeto['posicao']== nova_pos and objeto['tipo'] == PAREDE:
             estado['mensagem'] = 'Há uma parede no caminho!'
             return
 
 
+    monstro_alvo = None
+    for objeto in estado['objetos']:
+        if objeto['posicao'] == nova_pos and objeto['tipo'] == MONSTRO:
+            monstro_alvo = objeto
+            break
+
+    if monstro_alvo is not None:
+        # Sorteia quem ataca
+        if random() < monstro_alvo['probabilidade_de_ataque']:
+            # Monstro ataca o jogador
+            estado['vidas'] -= 1
+            estado['mensagem'] = 'O monstro te atacou! -1 vida'
+            if estado['vidas'] <= 0:
+                estado['mensagem'] = 'Você morreu!'
+                estado['tela_atual'] = SAIR
+        else:
+            # Jogador ataca o monstro
+            monstro_alvo['vida'] -= 1
+            estado['mensagem'] = 'Você atacou o monstro! -1 vida'
+
+            if monstro_alvo['vida'] <= 0:
+                # Monstro morre e remove e o jogador, ocupando sua posição
+                estado['objetos'].remove(monstro_alvo)
+                estado['pos_jogador'] = nova_pos
+                estado['mensagem'] = 'Você derrotou o monstro!'
+        return   # não continua o movimento normal
+
     estado['pos_jogador']=nova_pos
+    
     # Vidas do jogador 
 
     pos_jogador = estado['pos_jogador']
