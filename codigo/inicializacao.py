@@ -29,25 +29,35 @@ def gera_objetos(quantidade, tipo, cor, largura_mapa, altura_mapa, posicoes_ocup
     return objetos
 
 
+def carrega_mapa_de_arquivo(caminho_arquivo, posicoes_ocupadas):
+    with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
+        linhas = arquivo.read().splitlines()
+
+
+    mapa=[]
+    paredes=[]
+
+    for y,linha in enumerate(linhas):
+        linha_mapa=[]
+        for x, caractere in enumerate(linha):
+            if caractere == '#':
+                paredes.append({
+                    'tipo': PAREDE,
+                    'posicao': [x, y],
+                    'cor': MARROM_ESCURO,
+                })
+                posicoes_ocupadas.append([x, y])
+            linha_mapa.append(' ')  # o mapa em si continua sendo só espaços
+        mapa.append(linha_mapa)
+
+    return mapa, paredes
+
+
 def inicializa_estado():
-    # Cria lista de listas, cada uma com 50 espaços em branco
-    mapa = [
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-    ]
+    posicoes_ocupadas=[]
+
+    mapa, paredes=carrega_mapa_de_arquivo('mapa.txt',posicoes_ocupadas)
+
     
     largura_mapa = len(mapa[0])
     altura_mapa = len(mapa)
@@ -56,8 +66,9 @@ def inicializa_estado():
     pos_jogador = [largura_mapa//2, altura_mapa//2]  # Meio do mapa
     
     # Cria outros objetos do mapa
-    posicoes_ocupadas = [pos_jogador]
-    objetos = []
+    posicoes_ocupadas.append(pos_jogador)
+
+    objetos = list(paredes)
     objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
     objetos += gera_objetos(6, ESPINHO, AMARELO, largura_mapa, altura_mapa, posicoes_ocupadas)  # ← mudou para AMARELO
     objetos += gera_objetos(12, PAREDE, MARROM_ESCURO, largura_mapa, altura_mapa, posicoes_ocupadas)
