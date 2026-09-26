@@ -8,39 +8,50 @@ from inicializacao import gera_posicao_desocupada,gera_objetos
 from random import random,choice
 
 def desenha_tela(janela, estado, altura_tela, largura_tela):
-    # Utilize o dicionário estado para saber onde o jogador e os outros objetos estão.
-    # Por exemplo, para saber a posição do jogador, use estado['pos_jogador']
-    # O mapa esta armazenado em estado['mapa'].
     motor.preenche_fundo(janela, PRETO)
-    inicio_altura_tela=(altura_tela-len(estado['mapa']))//2
-    inicio_largura_tela=(largura_tela-len(estado['mapa'][0]))//2
 
-    for y in range(inicio_altura_tela,len(estado['mapa'])+inicio_altura_tela):
-        for x in range(inicio_largura_tela,len(estado['mapa'][0])+inicio_largura_tela):
-            motor.desenha_string(janela,x,y,' ',VERDE_CLARO,VERDE_ESCURO)
+    altura_mapa=len(estado['mapa'])
+    largura_mapa=len(estado['mapa'][0])
+    pos_jogador=estado['pos_jogador']
+
+    # Evitar o canto inferior direito (limitação do curses)
+    largura_util = largura_tela - 1
+    altura_util = altura_tela - 1
+    
+    inicio_largura_tela = largura_util // 2 - pos_jogador[0]
+    inicio_altura_tela = altura_util // 2 - pos_jogador[1]
+
+    if largura_mapa > largura_util:
+        inicio_largura_tela = max(largura_util - largura_mapa, min(0, inicio_largura_tela))
+    else:
+        inicio_largura_tela = (largura_util - largura_mapa) // 2
+
+    if altura_mapa > altura_tela:
+        inicio_altura_tela = max(altura_util - altura_mapa, min(0, inicio_altura_tela))
+    else:
+        inicio_altura_tela = (altura_util - altura_mapa) // 2
 
 
+    for y in range(altura_mapa):
+        for x in range(largura_mapa):
+            tela_x = x + inicio_largura_tela
+            tela_y = y + inicio_altura_tela
+            if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
+                motor.desenha_string(janela, tela_x, tela_y, ' ', VERDE_CLARO, VERDE_ESCURO)
 
     for objeto in estado['objetos']:
-        motor.desenha_string(
-            janela,
-            objeto['posicao'][0] + inicio_largura_tela,
-            objeto['posicao'][1] + inicio_altura_tela,
-            objeto['tipo'],
-            VERDE_CLARO,
-            objeto['cor']
-        )
+        tela_x = objeto['posicao'][0] + inicio_largura_tela
+        tela_y = objeto['posicao'][1] + inicio_altura_tela
+        if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
+            motor.desenha_string(janela, tela_x, tela_y, objeto['tipo'], VERDE_CLARO, objeto['cor'])
 
-    # Desenha o jogador 
-    pos_jogador=estado['pos_jogador']
-    motor.desenha_string(
-        janela,
-        pos_jogador[0] + inicio_largura_tela,
-        pos_jogador[1] + inicio_altura_tela,
-        JOGADOR,
-        VERDE_CLARO,
-        PRETO
-    )
+
+    tela_x = pos_jogador[0] + inicio_largura_tela
+    tela_y = pos_jogador[1] + inicio_altura_tela
+    if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
+        motor.desenha_string(janela, tela_x, tela_y, JOGADOR, VERDE_CLARO, PRETO)
+
+
     # Desenha vidas 
     x_vidas =2
     y_vidas =1
