@@ -23,35 +23,54 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
 
     for objeto in estado['objetos']:
-        motor.desenha_string(janela,objeto['posicao'][0]+inicio_largura_tela,objeto['posicao'][1]+inicio_altura_tela,objeto['tipo'],objeto['cor'],VERDE_CLARO)
+        motor.desenha_string(
+            janela,
+            objeto['posicao'][0] + inicio_largura_tela,
+            objeto['posicao'][1] + inicio_altura_tela,
+            objeto['tipo'],
+            objeto['cor'],
+            VERDE_CLARO
+        )
 
-
+    # Desenha o jogador 
     pos_jogador=estado['pos_jogador']
-    motor.desenha_string(janela,(pos_jogador[0]+inicio_largura_tela),(pos_jogador[1]+inicio_altura_tela),JOGADOR,VERDE_CLARO,PRETO)
-        
+    motor.desenha_string(
+        janela,
+        pos_jogador[0] + inicio_largura_tela,
+        pos_jogador[1] + inicio_altura_tela,
+        JOGADOR,
+        VERDE_CLARO,
+        PRETO
+    )
+    # Desenha vidas 
+    x_vidas =2
+    y_vidas =1
+
+    for i in range(estado['max_vidas']):
+        if i < estado['vidas']:
+            motor.desenha_string(janela, x_vidas+i, y_vidas, CORACAO, VERMELHO, VERMELHO)
+        else:
+            motor.desenha_string(janela, x_vidas+i, y_vidas, CORACAO, BRANCO, BRANCO)
 
 
 def atualiza_estado(estado, tecla):
-    # O seu código deve atualizar o dicionário "estado" com base na tecla apertada pelo jogador
-    # Por exemplo, se o jogador apertar a seta para a esquerda (o valor da variável será "ESQUERDA"), 
-    # o seu código deve atualizar o dicionário estado['pos_jogador'][0] -= 1
+    # O dicionário "estado" é atualizado com base na tecla apertada pelo jogador
 
     # Mude o valor da chave 'tela_atual' para mudar de tela
     
     # Começamos apagando a mensagem anterior, pois ela já foi mostrada no frame anterior
     estado['mensagem'] = ''
 
-    # Escreva seu código para atualizar o dicionário "estado" com base na tecla apertada pelo jogador aqui
-    # APAGUE ESTA LINHA E ESCREVA SEU CÓDIGO AQUI
-
     # Ao apertar a tecla 'i', o jogador deve ver o inventário
     if tecla == 'i':
         estado['tela_atual'] = TELA_INVENTARIO
+
     # Termina o jogo se o jogador apertar ESC ou 'q'
     elif tecla == motor.ESCAPE or tecla =='q':
         estado['tela_atual'] = SAIR
 
 
+    # Movimento do jogador, sendo limitado com base nas bordas do mapa
     elif tecla == motor.SETA_ESQUERDA :
         if estado['pos_jogador'][0]>0:
             estado['pos_jogador'][0]-=1
@@ -65,5 +84,35 @@ def atualiza_estado(estado, tecla):
         if estado['pos_jogador'][1] > 0:
             estado['pos_jogador'][1] -= 1
 
+    # Vidas do jogador 
+
+    pos_jogador = estado['pos_jogador']
+    objetos_para_remover = []
+
+    for objeto in estado['objetos']:
+        if objeto['posicao'] == pos_jogador:   # jogador pisou no objeto
+                
+            if objeto['tipo'] == CORACAO:
+                # Ganha vida (sem passar do máximo)
+                if estado['vidas'] < estado['max_vidas']:
+                    estado['vidas'] += 1
+                    estado['mensagem'] = 'Você ganhou uma vida!'
+                else:
+                    estado['mensagem'] = 'Vidas já estão no máximo!'
+                objetos_para_remover.append(objeto)
+
+            elif objeto['tipo'] == ESPINHO:
+                estado['vidas'] -= 1         # perde vida
+                estado['mensagem'] = 'Você perdeu uma vida!'
+                objetos_para_remover.append(objeto)
+
+                # Se as vidas acabaram
+                if estado['vidas'] <= 0:
+                    estado['mensagem'] = 'Você morreu!'
+                    estado['tela_atual'] = SAIR
+
+    # Remove os objetos que o jogador pegou
+    for objeto in objetos_para_remover:
+        estado['objetos'].remove(objeto)
     
     

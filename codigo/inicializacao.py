@@ -87,8 +87,7 @@ def inicializa_estado():
     posicoes_ocupadas = [pos_jogador]
     objetos = []
     objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
-    objetos += gera_objetos(6, ESPINHO, VERDE_CLARO, largura_mapa, altura_mapa, posicoes_ocupadas)
-    
+    objetos += gera_objetos(6, ESPINHO, AMARELO, largura_mapa, altura_mapa, posicoes_ocupadas)  # ← mudou para AMARELO
     return {
         'tela_atual': TELA_JOGO,
         'pos_jogador': pos_jogador,
