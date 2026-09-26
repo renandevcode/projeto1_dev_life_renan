@@ -11,8 +11,8 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     # Por exemplo, para saber a posição do jogador, use estado['pos_jogador']
     # O mapa esta armazenado em estado['mapa'].
     motor.preenche_fundo(janela, PRETO)
-    inicio_altura_tela=int((altura_tela-len(estado['mapa']))/2)
-    inicio_largura_tela=int((largura_tela-len(estado['mapa'][0]))/2)
+    inicio_altura_tela=(altura_tela-len(estado['mapa']))//2
+    inicio_largura_tela=(largura_tela-len(estado['mapa'][0]))//2
 
     # O seu código deve desenhar a tela do jogo aqui a partir dos valores no dicionário "estado"
     # APAGUE ESTA LINHA E A LINHA ABAIXO E ESCREVA SEU CÓDIGO AQUI
@@ -50,13 +50,20 @@ def atualiza_estado(estado, tecla):
     # Termina o jogo se o jogador apertar ESC ou 'q'
     elif tecla == motor.ESCAPE or tecla =='q':
         estado['tela_atual'] = SAIR
+
+
     elif tecla == motor.SETA_ESQUERDA :
+        if estado['pos_jogador'][0]>0:
             estado['pos_jogador'][0]-=1
     elif tecla == motor.SETA_DIREITA :
-                estado['pos_jogador'][0]+=1
+        if estado['pos_jogador'][0]<len(estado['mapa'][0])-1:
+            estado['pos_jogador'][0]+=1
     elif tecla == motor.SETA_BAIXO :
-                estado['pos_jogador'][1]+=1
+        if estado['pos_jogador'][1]<len(estado['mapa'])-1:
+            estado['pos_jogador'][1]+=1
     elif tecla == motor.SETA_CIMA :
-                estado['pos_jogador'][1]-=1
+        if estado['pos_jogador'][1] > 0:
+            estado['pos_jogador'][1] -= 1
+
     
     
