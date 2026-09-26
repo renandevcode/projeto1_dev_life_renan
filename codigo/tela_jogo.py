@@ -61,6 +61,9 @@ def atualiza_estado(estado, tecla):
     # Começamos apagando a mensagem anterior, pois ela já foi mostrada no frame anterior
     estado['mensagem'] = ''
 
+    # Retém a posição jogador para atualizar ao fim do ciclo
+    nova_pos=estado['pos_jogador'][:]
+
     # Ao apertar a tecla 'i', o jogador deve ver o inventário
     if tecla == 'i':
         estado['tela_atual'] = TELA_INVENTARIO
@@ -69,21 +72,29 @@ def atualiza_estado(estado, tecla):
     elif tecla == motor.ESCAPE or tecla =='q':
         estado['tela_atual'] = SAIR
 
-
     # Movimento do jogador, sendo limitado com base nas bordas do mapa
     elif tecla == motor.SETA_ESQUERDA :
         if estado['pos_jogador'][0]>0:
-            estado['pos_jogador'][0]-=1
+            nova_pos[0]-=1
     elif tecla == motor.SETA_DIREITA :
         if estado['pos_jogador'][0]<len(estado['mapa'][0])-1:
-            estado['pos_jogador'][0]+=1
+            nova_pos[0]+=1
     elif tecla == motor.SETA_BAIXO :
         if estado['pos_jogador'][1]<len(estado['mapa'])-1:
-            estado['pos_jogador'][1]+=1
+            nova_pos[1]+=1
     elif tecla == motor.SETA_CIMA :
         if estado['pos_jogador'][1] > 0:
-            estado['pos_jogador'][1] -= 1
+            nova_pos[1] -= 1
+    else : 
+        return
 
+    for objeto  in estado['objetos']:
+        if objeto['posicao']== nova_pos and objeto['tipo'] == PAREDE:
+            estado['mensagem'] = 'Há uma parede no caminho!'
+            return
+
+
+    estado['pos_jogador']=nova_pos
     # Vidas do jogador 
 
     pos_jogador = estado['pos_jogador']
