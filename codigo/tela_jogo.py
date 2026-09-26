@@ -5,7 +5,8 @@ import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.p
                                # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
 
 from inicializacao import gera_posicao_desocupada,gera_objetos
-from random import random
+from random import random,choice
+
 def desenha_tela(janela, estado, altura_tela, largura_tela):
     # Utilize o dicionário estado para saber onde o jogador e os outros objetos estão.
     # Por exemplo, para saber a posição do jogador, use estado['pos_jogador']
@@ -80,8 +81,8 @@ def atualiza_estado(estado, tecla):
     elif tecla == motor.SETA_CIMA :
         if estado['pos_jogador'][1] > 0:
             nova_pos[1] -= 1
-    else : 
-        return
+    
+
 
     # Indica colisão com a parede 
     for objeto  in estado['objetos']:
@@ -108,8 +109,8 @@ def atualiza_estado(estado, tecla):
         else:
             # Jogador ataca o monstro
             monstro_alvo['vida'] -= 1
-            estado['mensagem'] = 'Você atacou o monstro! -1 vida'
-
+            estado['mensagem'] = f'Você atacou o monstro! Vida do monstro: {monstro_alvo["vida"]}'
+            
             if monstro_alvo['vida'] <= 0:
                 # Monstro morre e remove e o jogador, ocupando sua posição
                 estado['objetos'].remove(monstro_alvo)
@@ -149,5 +150,51 @@ def atualiza_estado(estado, tecla):
     # Remove os objetos que o jogador pegou
     for objeto in objetos_para_remover:
         estado['objetos'].remove(objeto)
-    
-    
+
+    # Movimentação aleatória dos monstros
+    direcoes = [
+        (-1, 0),  # esquerda
+        (1, 0),   # direita
+        (0, -1),  # cima
+        (0, 1),   # baixo
+        (0, 0),   # ficar parado
+    ]
+
+    for objeto in list(estado['objetos']):
+        if objeto['tipo'] != MONSTRO:
+            continue
+
+        px, py = estado['pos_jogador']
+        mx, my = objeto['posicao']
+        distancia = abs(px - mx) + abs(py - my)
+
+        if distancia == 1:
+            # Monstro está colado no jogador: ataca direto, sem se mover
+            if random() < objeto['probabilidade_de_ataque']:
+                estado['vidas'] -= 1
+                estado['mensagem'] = f'O monstro te atacou! Vida restante: {estado["vidas"]}'
+                if estado['vidas'] <= 0:
+                    estado['mensagem'] = 'Você morreu!'
+                    estado['tela_atual'] = SAIR
+            else:
+                objeto['vida'] -= 1
+                estado['mensagem'] = f'Você revidou! Vida do monstro: {objeto["vida"]}'
+                if objeto['vida'] <= 0:
+                    estado['objetos'].remove(objeto)
+                    estado['mensagem'] = 'Você derrotou o monstro!'
+            continue  # não se move nesse turno
+
+
+        dx, dy = choice(direcoes)       # Sorteia uma nova direção
+        nova_pos_monstro = [mx + dx, my + dy]  # Alterando posição
+
+        # Verifica se a nova posição está dentro do mapa
+        if not (0 <= nova_pos_monstro[0] < len(estado['mapa'][0]) and
+                0 <= nova_pos_monstro[1] < len(estado['mapa'])):
+            continue
+
+        posicao_ocupada = any(o['posicao'] == nova_pos_monstro for o in estado['objetos'])
+        if not posicao_ocupada:
+            objeto['posicao'] = nova_pos_monstro
+
+        
