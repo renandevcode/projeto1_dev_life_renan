@@ -113,11 +113,19 @@ def atualiza_estado(estado, tecla):
             break
 
     if monstro_alvo is not None:
-        # Sorteia quem ataca
-        if random() < monstro_alvo['probabilidade_de_ataque']:
+        if monstro_alvo.get('eh_chefao') and monstro_alvo['vida'] <= 5:
+            monstro_alvo['enfurecido'] = True
+
+        chance_ataque = 1.0 if monstro_alvo.get('enfurecido') else monstro_alvo['probabilidade_de_ataque']
+
+        if random() < chance_ataque:
             # Monstro ataca o jogador
-            estado['vidas'] -= 1
-            estado['mensagem'] = 'O monstro te atacou! -1 vida'
+            dano = monstro_alvo.get('dano', 1)
+            estado['vidas'] -= dano
+            if monstro_alvo.get('eh_chefao'):
+                estado['mensagem'] = f'O chefão te atacou com fúria! -{dano} vida'
+            else:
+                estado['mensagem'] = 'O monstro te atacou! -1 vida'
             if estado['vidas'] <= 0:
                 estado['mensagem'] = 'Você morreu!'
                 estado['tela_atual'] = SAIR
@@ -125,12 +133,15 @@ def atualiza_estado(estado, tecla):
             # Jogador ataca o monstro
             monstro_alvo['vida'] -= 1
             estado['mensagem'] = f'Você atacou o monstro! Vida do monstro: {monstro_alvo["vida"]}'
-            
+
             if monstro_alvo['vida'] <= 0:
                 # Monstro morre e remove e o jogador, ocupando sua posição
                 estado['objetos'].remove(monstro_alvo)
                 estado['pos_jogador'] = nova_pos
-                estado['mensagem'] = 'Você derrotou o monstro!'
+                if monstro_alvo.get('eh_chefao'):
+                    estado['mensagem'] = 'Você derrotou o CHEFÃO! Vitória!'
+                else:
+                    estado['mensagem'] = 'Você derrotou o monstro!'
         return   # não continua o movimento normal
 
     estado['pos_jogador']=nova_pos
@@ -208,11 +219,20 @@ def atualiza_estado(estado, tecla):
         mx, my = objeto['posicao']
         distancia = abs(px - mx) + abs(py - my)
 
+        if objeto.get('eh_chefao') and objeto['vida'] <= 5:
+            objeto['enfurecido'] = True
+
         if distancia == 1:
             # Monstro está colado no jogador: ataca direto, sem se mover
-            if random() < objeto['probabilidade_de_ataque']:
-                estado['vidas'] -= 1
-                estado['mensagem'] = f'O monstro te atacou! Vida restante: {estado["vidas"]}'
+            chance_ataque = 1.0 if objeto.get('enfurecido') else objeto['probabilidade_de_ataque']
+
+            if random() < chance_ataque:
+                dano = objeto.get('dano', 1)
+                estado['vidas'] -= dano
+                if objeto.get('eh_chefao'):
+                    estado['mensagem'] = f'O chefão te atacou com fúria! -{dano} vida'
+                else:
+                    estado['mensagem'] = f'O monstro te atacou! Vida restante: {estado["vidas"]}'
                 if estado['vidas'] <= 0:
                     estado['mensagem'] = 'Você morreu!'
                     estado['tela_atual'] = SAIR
@@ -221,11 +241,26 @@ def atualiza_estado(estado, tecla):
                 estado['mensagem'] = f'Você revidou! Vida do monstro: {objeto["vida"]}'
                 if objeto['vida'] <= 0:
                     estado['objetos'].remove(objeto)
-                    estado['mensagem'] = 'Você derrotou o monstro!'
+                    if objeto.get('eh_chefao'):
+                        estado['mensagem'] = 'Você derrotou o CHEFÃO! Vitória!'
+                    else:
+                        estado['mensagem'] = 'Você derrotou o monstro!'
             continue  # não se move nesse turno
 
 
-        dx, dy = choice(direcoes)       # Sorteia uma nova direção
+        # Movimento: chefão persegue o jogador, os demais andam aleatório
+        if objeto.get('eh_chefao'):
+            dx = 1 if px > mx else (-1 if px < mx else 0)
+            dy = 1 if py > my else (-1 if py < my else 0)
+            # Move só em um eixo por vez, evitando diagonal
+            if dx != 0 and dy != 0:
+                if random() < 0.5:
+                    dy = 0
+                else:
+                    dx = 0
+        else:
+            dx, dy = choice(direcoes)   
+
         nova_pos_monstro = [mx + dx, my + dy]  # Alterando posição
 
         # Verifica se a nova posição está dentro do mapa

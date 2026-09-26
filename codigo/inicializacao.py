@@ -85,6 +85,17 @@ def inicializa_estado():
 
     objetos+=monstros
 
+    if pos_chefao:
+        chefao = {
+            'tipo': MONSTRO,
+            'posicao': pos_chefao,
+            'cor': ROXO,
+            'vida': 15,
+            'probabilidade_de_ataque': 0.6,
+            'eh_chefao': True,
+        }
+        objetos.append(chefao)
+
     return {
         'tela_atual': TELA_JOGO,
         'pos_jogador': pos_jogador,
