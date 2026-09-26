@@ -15,8 +15,6 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     inicio_altura_tela=(altura_tela-len(estado['mapa']))//2
     inicio_largura_tela=(largura_tela-len(estado['mapa'][0]))//2
 
-    # O seu código deve desenhar a tela do jogo aqui a partir dos valores no dicionário "estado"
-    # APAGUE ESTA LINHA E A LINHA ABAIXO E ESCREVA SEU CÓDIGO AQUI
     for y in range(inicio_altura_tela,len(estado['mapa'])+inicio_altura_tela):
         for x in range(inicio_largura_tela,len(estado['mapa'][0])+inicio_largura_tela):
             motor.desenha_string(janela,x,y,' ',VERDE_CLARO,VERDE_ESCURO)
@@ -29,8 +27,8 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
             objeto['posicao'][0] + inicio_largura_tela,
             objeto['posicao'][1] + inicio_altura_tela,
             objeto['tipo'],
-            objeto['cor'],
-            VERDE_CLARO
+            VERDE_CLARO,
+            objeto['cor']
         )
 
     # Desenha o jogador 
@@ -49,9 +47,9 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
     for i in range(estado['max_vidas']):
         if i < estado['vidas']:
-            motor.desenha_string(janela, x_vidas+i, y_vidas, CORACAO, VERMELHO, VERMELHO)
+            motor.desenha_string(janela, x_vidas+i, y_vidas, CORACAO, PRETO, VERMELHO)
         else:
-            motor.desenha_string(janela, x_vidas+i, y_vidas, CORACAO, BRANCO, BRANCO)
+            motor.desenha_string(janela, x_vidas+i, y_vidas, CORACAO, PRETO,BRANCO)
 
 
 def atualiza_estado(estado, tecla):
