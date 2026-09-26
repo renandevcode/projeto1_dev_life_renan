@@ -36,6 +36,8 @@ def carrega_mapa_de_arquivo(caminho_arquivo, posicoes_ocupadas):
 
     mapa=[]
     paredes=[]
+    pos_sala_secreta = None
+    pos_chefao = None
 
     for y,linha in enumerate(linhas):
         linha_mapa=[]
@@ -47,16 +49,20 @@ def carrega_mapa_de_arquivo(caminho_arquivo, posicoes_ocupadas):
                     'cor': MARROM_ESCURO,
                 })
                 posicoes_ocupadas.append([x, y])
+            elif caractere == 'S':
+                pos_sala_secreta = [x,y]
+            elif caractere == 'B':
+                pos_chefao = [x, y]
             linha_mapa.append(' ')  # o mapa em si continua sendo só espaços
         mapa.append(linha_mapa)
 
-    return mapa, paredes
+    return mapa, paredes, pos_sala_secreta, pos_chefao
 
 
 def inicializa_estado():
     posicoes_ocupadas=[]
 
-    mapa, paredes=carrega_mapa_de_arquivo('mapa.txt',posicoes_ocupadas)
+    mapa, paredes, pos_sala_secreta, pos_chefao = carrega_mapa_de_arquivo('mapa.txt', posicoes_ocupadas)
 
     
     largura_mapa = len(mapa[0])
@@ -70,8 +76,7 @@ def inicializa_estado():
 
     objetos = list(paredes)
     objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
-    objetos += gera_objetos(6, ESPINHO, AMARELO, largura_mapa, altura_mapa, posicoes_ocupadas)  # ← mudou para AMARELO
-    objetos += gera_objetos(12, PAREDE, MARROM_ESCURO, largura_mapa, altura_mapa, posicoes_ocupadas)
+    objetos += gera_objetos(6, ESPINHO, AMARELO, largura_mapa, altura_mapa, posicoes_ocupadas) 
     monstros = gera_objetos(4, MONSTRO, ROXO, largura_mapa, altura_mapa, posicoes_ocupadas)
     
     for monstro in monstros:
@@ -88,4 +93,7 @@ def inicializa_estado():
         'objetos': objetos,
         'mapa': mapa,
         'mensagem': '',  # Mensagens ao jogador, como "Você perdeu uma vida" ou "Você ganhou uma vida"
+        'pos_sala_secreta': pos_sala_secreta,
+        'pos_chefao': pos_chefao,
+        'sala_secreta_revelada': False,
     }

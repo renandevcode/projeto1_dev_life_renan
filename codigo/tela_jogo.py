@@ -17,7 +17,9 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     # Evitar o canto inferior direito (limitação do curses)
     largura_util = largura_tela - 1
     altura_util = altura_tela - 1
-    
+
+
+    # Define a centralização da tela com base no personagem
     inicio_largura_tela = largura_util // 2 - pos_jogador[0]
     inicio_altura_tela = altura_util // 2 - pos_jogador[1]
 
@@ -26,7 +28,7 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     else:
         inicio_largura_tela = (largura_util - largura_mapa) // 2
 
-    if altura_mapa > altura_tela:
+    if altura_mapa > altura_util:
         inicio_altura_tela = max(altura_util - altura_mapa, min(0, inicio_altura_tela))
     else:
         inicio_altura_tela = (altura_util - altura_mapa) // 2
@@ -62,6 +64,10 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
         else:
             motor.desenha_string(janela, x_vidas+i, y_vidas, CORACAO, PRETO,BRANCO)
 
+    if estado.get('mensagem'):
+        x_mensagem = 2
+        y_mensagem = 2
+        motor.desenha_string(janela, x_mensagem, y_mensagem, estado['mensagem'], PRETO, AMARELO)
 
 def atualiza_estado(estado, tecla):
     estado['mensagem'] = ''
@@ -128,6 +134,31 @@ def atualiza_estado(estado, tecla):
         return   # não continua o movimento normal
 
     estado['pos_jogador']=nova_pos
+
+    # Revela a sala secreta quando o jogador se aproxima
+    if estado.get('pos_sala_secreta') and not estado['sala_secreta_revelada']:
+        px, py = estado['pos_jogador']
+        sx, sy = estado['pos_sala_secreta']
+        if abs(px - sx) + abs(py - sy) <= 1:
+            estado['sala_secreta_revelada'] = True
+            estado['mapa'][sy][sx] = ' '  # abre a passagem visualmente
+            estado['mensagem'] = 'Você encontrou uma sala secreta!'
+ 
+            # Recompensa: adiciona um item de valor dentro da sala
+            posicoes_coracoes = [
+                [sx - 2, sy + 2],
+                [sx,     sy + 2],
+                [sx + 2, sy + 2],
+                [sx - 1, sy + 4],
+                [sx + 1, sy + 4],
+            ]
+            
+            for posicao in posicoes_coracoes:
+                estado['objetos'].append({
+                    'tipo': CORACAO,
+                    'posicao': posicao,
+                    'cor': VERMELHO,
+                })
     
     # Vidas do jogador 
 
