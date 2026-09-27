@@ -73,8 +73,3 @@ Pronto! Agora é só seguir os passos da seção [Como jogar](#️-como-jogar).
 
 ---
 
-<div align="center">
-
-Feito com 🐍 e muito ☕ por **Renan Ramos**
-
-</div>
