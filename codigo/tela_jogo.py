@@ -96,14 +96,32 @@ def atualiza_estado(estado, tecla):
     elif tecla == motor.SETA_CIMA :
         if estado['pos_jogador'][1] > 0:
             nova_pos[1] -= 1
-    
+   
+    # Indica colisão com porta
+    for objeto in estado['objetos']:
+        if objeto['posicao'] != nova_pos:
+            continue
 
-
-    # Indica colisão com a parede 
-    for objeto  in estado['objetos']:
-        if objeto['posicao']== nova_pos and objeto['tipo'] == PAREDE:
+        if objeto['tipo'] == PAREDE:
             estado['mensagem'] = 'Há uma parede no caminho!'
             return
+
+        if objeto['tipo'] == PORTA:
+            if not objeto.get('trancada'):
+                continue
+
+            tem_chave = any(i['tipo'] == CHAVE for i in estado.get('inventario', []))
+            if tem_chave:
+                for i, item in enumerate(estado['inventario']):
+                    if item['tipo'] == CHAVE:
+                        estado['inventario'].pop(i)
+                        break
+                objeto['trancada'] = False
+                objeto['cor'] = MARROM_MAIS_ESCURO
+                estado['mensagem'] = 'Você usou a chave e abriu a porta!'
+            else:
+                estado['mensagem'] = 'A porta está trancada. Você precisa de uma chave.'
+                return
 
 
     monstro_alvo = None
@@ -170,6 +188,12 @@ def atualiza_estado(estado, tecla):
                     'posicao': posicao,
                     'cor': VERMELHO,
                 })
+
+                estado['objetos'].append({
+                'tipo': CHAVE,
+                'posicao': [sx, sy + 2],
+                'cor': DOURADO,
+                })
     
     # Vidas do jogador 
 
@@ -197,6 +221,10 @@ def atualiza_estado(estado, tecla):
                 if estado['vidas'] <= 0:
                     estado['mensagem'] = 'Você morreu!'
                     estado['tela_atual'] = SAIR
+            elif objeto['tipo'] == CHAVE:
+                estado['inventario'].append(objeto)
+                estado['mensagem'] = 'Você pegou uma chave!'
+                objetos_para_remover.append(objeto)
 
     # Remove os objetos que o jogador pegou
     for objeto in objetos_para_remover:

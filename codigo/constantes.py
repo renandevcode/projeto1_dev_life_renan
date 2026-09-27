@@ -15,6 +15,7 @@ VERMELHO = [255, 0, 0]
 ROXO = [200, 0, 200]
 MARROM_ESCURO = [100, 50, 0]
 MARROM_MAIS_ESCURO = [75, 40, 0]
+DOURADO=[211, 175, 55]
 
 # Telas
 # As constantes abaixo são apenas números. Elas são usadas para controlar qual tela deve ser desenhada.
@@ -30,3 +31,5 @@ CORACAO = '❤'
 ESPINHO = '🌵'
 MONSTRO = '👻'
 PAREDE = '▣'
+CHAVE = '⚿'   
+PORTA='🚪'

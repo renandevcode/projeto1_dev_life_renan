@@ -2,7 +2,6 @@ from random import randint
 
 from constantes import *  
 
-
 def gera_posicao_desocupada(posicoes_ocupadas, largura_mapa, altura_mapa):
     while True:
         x = randint(1, largura_mapa-2)
@@ -36,6 +35,7 @@ def carrega_mapa_de_arquivo(caminho_arquivo, posicoes_ocupadas):
 
     mapa=[]
     paredes=[]
+    portas=[]
     pos_sala_secreta = None
     pos_chefao = None
 
@@ -53,18 +53,25 @@ def carrega_mapa_de_arquivo(caminho_arquivo, posicoes_ocupadas):
                 pos_sala_secreta = [x,y]
             elif caractere == 'B':
                 pos_chefao = [x, y]
-            linha_mapa.append(' ')  # o mapa em si continua sendo só espaços
+            elif caractere == 'D':
+                portas.append({
+                    'tipo': PORTA,
+                    'posicao': [x, y],
+                    'cor': MARROM_ESCURO,
+                    'trancada': True,
+                })
+                posicoes_ocupadas.append([x, y])
+            linha_mapa.append(' ') 
         mapa.append(linha_mapa)
 
-    return mapa, paredes, pos_sala_secreta, pos_chefao
+    return mapa, paredes, portas, pos_sala_secreta, pos_chefao
 
 
 def inicializa_estado():
     posicoes_ocupadas=[]
 
-    mapa, paredes, pos_sala_secreta, pos_chefao = carrega_mapa_de_arquivo('mapa.txt', posicoes_ocupadas)
+    mapa, paredes, portas, pos_sala_secreta, pos_chefao = carrega_mapa_de_arquivo('mapa.txt', posicoes_ocupadas)
 
-    
     largura_mapa = len(mapa[0])
     altura_mapa = len(mapa)
     
@@ -75,6 +82,7 @@ def inicializa_estado():
     posicoes_ocupadas.append(pos_jogador)
 
     objetos = list(paredes)
+    objetos += list(portas)
     objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
     objetos += gera_objetos(6, ESPINHO, AMARELO, largura_mapa, altura_mapa, posicoes_ocupadas) 
     monstros = gera_objetos(4, MONSTRO, ROXO, largura_mapa, altura_mapa, posicoes_ocupadas)
@@ -107,4 +115,5 @@ def inicializa_estado():
         'pos_sala_secreta': pos_sala_secreta,
         'pos_chefao': pos_chefao,
         'sala_secreta_revelada': False,
+        'inventario':[],
     }
