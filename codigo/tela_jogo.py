@@ -39,19 +39,19 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
             tela_x = x + inicio_largura_tela
             tela_y = y + inicio_altura_tela
             if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
-                motor.desenha_string(janela, tela_x, tela_y, ' ', VERDE_CLARO, VERDE_ESCURO)
+                motor.desenha_string(janela, tela_x, tela_y, ' ', CINZA, VERDE_ESCURO)
 
     for objeto in estado['objetos']:
         tela_x = objeto['posicao'][0] + inicio_largura_tela
         tela_y = objeto['posicao'][1] + inicio_altura_tela
         if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
-            motor.desenha_string(janela, tela_x, tela_y, objeto['tipo'], VERDE_CLARO, objeto['cor'])
+            motor.desenha_string(janela, tela_x, tela_y, objeto['tipo'], CINZA, objeto['cor'])
 
 
     tela_x = pos_jogador[0] + inicio_largura_tela
     tela_y = pos_jogador[1] + inicio_altura_tela
     if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
-        motor.desenha_string(janela, tela_x, tela_y, JOGADOR, VERDE_CLARO, PRETO)
+        motor.desenha_string(janela, tela_x, tela_y, JOGADOR, CINZA, PRETO)
 
 
     # Desenha vidas 

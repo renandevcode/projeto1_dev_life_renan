@@ -8,6 +8,7 @@ PRETO = [0, 0, 0]
 BRANCO = [255, 255, 255]
 VERDE_CLARO = [0, 180, 0]
 VERDE_ESCURO = [0, 100, 0]
+CINZA=[30,30,30]
 AZUL = [0, 0, 130]
 AMARELO = [255, 255, 0]
 VERMELHO = [255, 0, 0]
@@ -24,8 +25,8 @@ TELA_INVENTARIO = 2
 # Objetos
 # As constantes abaixo são os caracteres que representam cada objeto no mapa.
 # Você pode mudar os caracteres para o que preferir.
-JOGADOR = '@'
+JOGADOR = '🤠'
 CORACAO = '❤'
-ESPINHO = '#'
-MONSTRO = '☠'
+ESPINHO = '🌵'
+MONSTRO = '👻'
 PAREDE = '▣'
