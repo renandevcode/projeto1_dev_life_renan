@@ -83,9 +83,9 @@ def inicializa_estado():
 
     objetos = list(paredes)
     objetos += list(portas)
-    objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
-    objetos += gera_objetos(6, ESPINHO, AMARELO, largura_mapa, altura_mapa, posicoes_ocupadas) 
-    monstros = gera_objetos(4, MONSTRO, ROXO, largura_mapa, altura_mapa, posicoes_ocupadas)
+    objetos += gera_objetos(50, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
+    objetos += gera_objetos(30, ESPINHO, AMARELO, largura_mapa, altura_mapa, posicoes_ocupadas) 
+    monstros = gera_objetos(20, MONSTRO, ROXO, largura_mapa, altura_mapa, posicoes_ocupadas)
     
     for monstro in monstros:
         monstro['vida'] = 3                    # cada monstro começa com 3 de vida
@@ -98,8 +98,8 @@ def inicializa_estado():
             'tipo': MONSTRO,
             'posicao': pos_chefao,
             'cor': ROXO,
-            'vida': 15,
-            'probabilidade_de_ataque': 0.6,
+            'vida': 10,
+            'probabilidade_de_ataque': 0.5,
             'eh_chefao': True,
         }
         objetos.append(chefao)
