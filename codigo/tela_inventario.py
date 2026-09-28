@@ -1,7 +1,7 @@
 from constantes import *
 import motor_grafico as motor
 
-
+# Função responsável pela tela de inventário 
 def desenha_tela(janela, estado, altura, largura):
     motor.preenche_fundo(janela, PRETO)
     motor.desenha_string(janela, 2, 1, 'INVENTARIO', BRANCO, PRETO)
@@ -9,6 +9,7 @@ def desenha_tela(janela, estado, altura, largura):
     
     if not inventario:
         motor.desenha_string(janela, 2, 3, 'Vazio...', CINZA, PRETO)
+    # Preenche inventário com oos  emojis dos respectivos  itens
     else:
         for i, item in enumerate(inventario):
             motor.desenha_string(

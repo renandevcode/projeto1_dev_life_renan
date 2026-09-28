@@ -4,7 +4,6 @@ from constantes import *  # Você pode usar as constantes definidas em constante
 import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.py para desenhar na tela
                                # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
 
-from inicializacao import gera_posicao_desocupada,gera_objetos
 from random import random,choice
 
 def desenha_tela(janela, estado, altura_tela, largura_tela):
@@ -18,8 +17,7 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     largura_util = largura_tela - 1
     altura_util = altura_tela - 1
 
-
-    # Define a centralização da tela com base no personagem
+    # Define a centralização da tela com base no personagem, que ao se mover transfere a posição da tela 
     inicio_largura_tela = largura_util // 2 - pos_jogador[0]
     inicio_altura_tela = altura_util // 2 - pos_jogador[1]
 
@@ -27,7 +25,6 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
         inicio_largura_tela = max(largura_util - largura_mapa, min(0, inicio_largura_tela))
     else:
         inicio_largura_tela = (largura_util - largura_mapa) // 2
-
     if altura_mapa > altura_util:
         inicio_altura_tela = max(altura_util - altura_mapa, min(0, inicio_altura_tela))
     else:
@@ -47,14 +44,12 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
         if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
             motor.desenha_string(janela, tela_x, tela_y, objeto['tipo'], CINZA, objeto['cor'])
 
-
     tela_x = pos_jogador[0] + inicio_largura_tela
     tela_y = pos_jogador[1] + inicio_altura_tela
     if 0 <= tela_x < largura_util and 0 <= tela_y < altura_util:
         motor.desenha_string(janela, tela_x, tela_y, JOGADOR, CINZA, PRETO)
 
-
-    # Desenha vidas 
+    # Desenha sessão de vidas no canto superior esquerdo 
     x_vidas =2
     y_vidas =1
 
@@ -78,11 +73,9 @@ def atualiza_estado(estado, tecla):
     # Ao apertar a tecla 'i', o jogador deve ver o inventário
     if tecla == 'i':
         estado['tela_atual'] = TELA_INVENTARIO
-
     # Termina o jogo se o jogador apertar ESC ou 'q'
     elif tecla == motor.ESCAPE or tecla =='q':
         estado['tela_atual'] = SAIR
-
     # Movimento do jogador, sendo limitado com base nas bordas do mapa
     elif tecla == motor.SETA_ESQUERDA :
         if estado['pos_jogador'][0]>0:
@@ -97,7 +90,7 @@ def atualiza_estado(estado, tecla):
         if estado['pos_jogador'][1] > 0:
             nova_pos[1] -= 1
    
-    # Indica colisão com porta
+    # Indica colisão com porta trancada ou parede 
     for objeto in estado['objetos']:
         if objeto['posicao'] != nova_pos:
             continue
@@ -116,7 +109,7 @@ def atualiza_estado(estado, tecla):
                     if item['tipo'] == CHAVE:
                         estado['inventario'].pop(i)
                         break
-                objeto['trancada'] = False
+                objeto['trancada'] = False      # Altera estado da porta para aberta
                 objeto['cor'] = MARROM_MAIS_ESCURO
                 estado['mensagem'] = 'Você usou a chave e abriu a porta!'
             else:
@@ -131,7 +124,7 @@ def atualiza_estado(estado, tecla):
             break
 
     if monstro_alvo is not None:
-        if monstro_alvo.get('eh_chefao') and monstro_alvo['vida'] <= 5:
+        if monstro_alvo.get('eh_chefao') and monstro_alvo['vida'] < 5:
             monstro_alvo['enfurecido'] = True
 
         chance_ataque = 1.0 if monstro_alvo.get('enfurecido') else monstro_alvo['probabilidade_de_ataque']
@@ -181,28 +174,27 @@ def atualiza_estado(estado, tecla):
                 [sx - 1, sy + 4],
                 [sx + 1, sy + 4],
             ]
-            
+
+            # Adicona corações as resectivas funcões dentro da sala  
             for posicao in posicoes_coracoes:
+                # Adicona corações e chave as resectivas funcões dentro da sala  
                 estado['objetos'].append({
                     'tipo': CORACAO,
                     'posicao': posicao,
                     'cor': VERMELHO,
                 })
-
+    
                 estado['objetos'].append({
                 'tipo': CHAVE,
                 'posicao': [sx, sy + 2],
                 'cor': DOURADO,
                 })
     
-    # Vidas do jogador 
-
     pos_jogador = estado['pos_jogador']
     objetos_para_remover = []
 
     for objeto in estado['objetos']:
-        if objeto['posicao'] == pos_jogador:   # jogador pisou no objeto
-                
+        if objeto['posicao'] == pos_jogador:   # jogador ocupa a posição do objeto
             if objeto['tipo'] == CORACAO:
                 # Ganha vida (sem passar do máximo)
                 if estado['vidas'] < estado['max_vidas']:
@@ -210,6 +202,7 @@ def atualiza_estado(estado, tecla):
                     estado['mensagem'] = 'Você ganhou uma vida!'
                 else:
                     estado['mensagem'] = 'Vidas já estão no máximo!'
+                # Adiciona o objeto a lista de retirada ao ocupar seu espaço
                 objetos_para_remover.append(objeto)
 
             elif objeto['tipo'] == ESPINHO:
@@ -217,16 +210,17 @@ def atualiza_estado(estado, tecla):
                 estado['mensagem'] = 'Você perdeu uma vida!'
                 objetos_para_remover.append(objeto)
 
-                # Se as vidas acabaram
+                # Se as vidas acabaram o jogo acaba 
                 if estado['vidas'] <= 0:
                     estado['mensagem'] = 'Você morreu!'
                     estado['tela_atual'] = SAIR
+
             elif objeto['tipo'] == CHAVE:
                 estado['inventario'].append(objeto)
                 estado['mensagem'] = 'Você pegou uma chave!'
                 objetos_para_remover.append(objeto)
 
-    # Remove os objetos que o jogador pegou
+    # Remove os objetos que o jogador ocupou o espaço ao longo do tempo 
     for objeto in objetos_para_remover:
         estado['objetos'].remove(objeto)
 
@@ -274,7 +268,6 @@ def atualiza_estado(estado, tecla):
                     else:
                         estado['mensagem'] = 'Você derrotou o monstro!'
             continue  # não se move nesse turno
-
 
         # Movimento: chefão persegue o jogador, os demais andam aleatório
         if objeto.get('eh_chefao'):
